@@ -22,6 +22,7 @@ if __name__ == '__main__':
   # - 'add_persistant_convolution_vanilla'
   
   arg.unidirectional_encoder = False
+  arg.kernel = 20
   model = Active_Memory_Transformer(arg)
   
   sequence_size = 5
