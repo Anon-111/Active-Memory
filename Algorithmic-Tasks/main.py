@@ -5,7 +5,7 @@ if __name__ == '__main__':
   import sys
   sys.path.append('../Utils')
   from tasks import addition as task 
-  # 'reverse', 'sort', 'addition', 'multiply', 'not', 'exnor'
+  # 'reverse', 'sort', 'addition', 'multiply', 'not', 'remember'
   from Active_Memory_Transformer import Active_Memory_Transformer, argument
 
   arg = argument()
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     print('Accuracy {:.4f}'.format(test_accuracy))
     if test_accuracy == 1.0: 
       sequence_size += 2 # this is where you adjust the sequence size
-      # if the task is 'reverse', 'sort', 'not', then the above line should be sequence_size += 1
+      # if the task is 'reverse', 'sort', 'not', 'remember' then the above line should be sequence_size += 1
       epochs_since_update = 0
     else:
       epochs_since_update += 1
