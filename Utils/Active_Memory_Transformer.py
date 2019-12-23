@@ -82,8 +82,7 @@ class Active_Memory_Transformer():
                                    dropout_type = self.arg.dropout_type,
                                    relative_attention = self.arg.relative_attention,
                                    max_relative_position = self.arg.max_relative_position,
-                                   adaptive_mask = self.arg.adaptive_mask,
-                                   dynamic_attention_span = self.arg.dynamic_attention_span)
+                                   adaptive_mask = self.arg.adaptive_mask)
     elif self.arg.att == 'convolution':
       self.att = functools.partial(self.convolution,
                                    act_fn = utils.gelu) 
@@ -273,8 +272,7 @@ class Active_Memory_Transformer():
                                         dropout_type = self.arg.dropout_type,
                                         relative_attention = False,
                                         max_relative_position = self.arg.max_relative_position,
-                                        adaptive_mask = self.arg.adaptive_mask,
-                                        dynamic_attention_span = self.arg.dynamic_attention_span)
+                                        adaptive_mask = self.arg.adaptive_mask)
           if self.arg.adaptive_mask:
             self.decoder_l0.append(y[1])
             y = y[0]
@@ -556,8 +554,7 @@ class Active_Memory_Transformer():
                               dropout_type = self.arg.dropout_type,
                               relative_attention = self.arg.relative_attention,
                               max_relative_position = self.arg.max_relative_position,
-                              adaptive_mask = self.arg.adaptive_mask,
-                              dynamic_attention_span = self.arg.dynamic_attention_span)
+                              adaptive_mask = self.arg.adaptive_mask)
       van_att = att(query,
                     bias = bias)
     return conv_att + van_att  
@@ -631,7 +628,6 @@ def argument():
   arg.adaptive_mask = False
   arg.classification = False
   arg.deparameterize = False
-  arg.dynamic_attention_span = False
   arg.mask_loss = False
   arg.relative_attention = False
   arg.unidirectional_decoder = True
