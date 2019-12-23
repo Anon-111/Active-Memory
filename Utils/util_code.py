@@ -357,10 +357,7 @@ def dot_product_attention(q,
                               name = 'attention_weights')
       
       if adaptive_mask:
-        weights, mask_loss = adaptive_span(weights,
-                                           dynamic_attention_span = dynamic_attention_span)
-      else:
-        mask_loss = None
+        weights = adaptive_span(weights)
     weights = dropout(weights,
                       keep_prob = dropout_keep_prob,
                       dropout = dropout_type)
@@ -449,10 +446,7 @@ def relative_dot_product_attention(q,
                             name = 'attention_weights')
     
     if adaptive_mask:
-      weights, mask_loss = adaptive_span(weights,
-                                         dynamic_attention_span = dynamic_attention_span)
-    else:
-      mask_loss = None
+      weights = adaptive_span(weights)
     
     weights = dropout(weights,
                       keep_prob = dropout_keep_prob,
@@ -460,7 +454,7 @@ def relative_dot_product_attention(q,
     return _relative_attention_inner(weights,
                                      v,
                                      relations_values,
-                                     False), mask_loss
+                                     False)
 
 def multihead_attention(query,
                         memory,
@@ -511,24 +505,22 @@ def multihead_attention(query,
     key_depth_per_head = total_key_depth // num_heads
     q *= key_depth_per_head ** -0.5
     if relative_attention:
-      x, mask_loss = relative_dot_product_attention(q,
-                                                    k,
-                                                    v,
-                                                    bias,
-                                                    max_relative_position,
-                                                    dropout_keep_prob,
-                                                    dropout_type,
-                                                    adaptive_mask,
-                                                    dynamic_attention_span)
+      x = relative_dot_product_attention(q,
+                                         k,
+                                         v,
+                                         bias,
+                                         max_relative_position,
+                                         dropout_keep_prob,
+                                         dropout_type,
+                                         adaptive_mask)
     else:
-      x, mask_loss = dot_product_attention(q,
-                                           k,
-                                           v,
-                                           bias,
-                                           dropout_keep_prob,
-                                           dropout_type,
-                                           adaptive_mask,
-                                           dynamic_attention_span)
+      x = dot_product_attention(q,
+                                k,
+                                v,
+                                bias,
+                                dropout_keep_prob,
+                                dropout_type,
+                                adaptive_mask)
     x = combine_heads(x)
     x.set_shape(x.shape.as_list()[:-1] + [total_value_depth])
     if adaptive_mask:
@@ -543,7 +535,6 @@ def multihead_attention(query,
                    name = 'output_transform')
   
 def adaptive_span(weights,
-                  dynamic_attention_span = False,
                   init_val = 0.0,
                   ramp_size = 32):
   '''
@@ -556,21 +547,9 @@ def adaptive_span(weights,
                       dtype = tf.float32)
   
   with tf.variable_scope('adaptive_mask'):
-    if dynamic_attention_span:
-      print('DYNAMIC ATTENTION SPAN WONT WORK')
-      exit()
-      current_val = dense(tf.reshape(weights,
-                                     [tf.shape(weights)[0], head_size, -1]),
-                          output_dim = 1,
-                          weight_initialization = tf.zeros_initializer(),
-                          bias_initialization = tf.constant_initializer(-4),
-                          use_bias = True)
-      current_val = tf.expand_dims(current_val,
-                                   axis = -1)
-    else:
-      current_val = tf.Variable(np.zeros(shape = [head_size, 1, 1]) + init_val,
-                                name = 'current_val',
-                                dtype = tf.float32)
+    current_val = tf.Variable(np.zeros(shape = [head_size, 1, 1]) + init_val,
+                              name = 'current_val',
+                              dtype = tf.float32)
     mask_template = tf.range(attn_span - 1,
                              -1,
                              delta = -1,
